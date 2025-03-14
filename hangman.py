@@ -1,84 +1,76 @@
-# Python Program to illustrate
-# Hangman Game
+import tkinter as tk
 import random
-from collections import Counter
 
+# List of words to guess
 someWords = '''apple banana mango strawberry 
 orange grape pineapple apricot lemon coconut watermelon 
 cherry papaya berry peach lychee muskmelon'''
-
 someWords = someWords.split(' ')
-# randomly choose a secret word from our "someWords" LIST.
+
+# Choose a random word
 word = random.choice(someWords)
+guessed = ['_' for _ in word]  # List to keep track of guessed letters
+chances = len(word) + 2  # Number of chances
+used_letters = set()  # Track guessed letters
 
-if __name__ == '__main__':
-    print('Guess the word! HINT: word is a name of a fruit')
+def guess(letter):
+    global chances
+    if letter in used_letters:
+        status_label.config(text=f"You already guessed '{letter.upper()}'.")
+        return
 
-    for i in word:
-        # For printing the empty spaces for letters of the word
-        print('_', end=' ')
-    print()
+    used_letters.add(letter)
+    if letter in word:
+        update_guessed(letter)
+        status_label.config(text=f"Good guess! '{letter.upper()}' is in the word.")
+    else:
+        chances -= 1
+        status_label.config(text=f"Wrong guess! '{letter.upper()}' is not in the word. {chances} chances left.")
+    
+    update_display()
 
-    playing = True
-    # List for storing the letters guessed by the player
-    letterGuessed = ''
-    chances = len(word) + 2
-    correct = 0
-    flag = 0
-    try:
-        while (chances != 0) and flag == 0:  # Flag is updated when the word is correctly guessed
-            print()
-            chances -= 1
+    if '_' not in guessed:
+        status_label.config(text="Congratulations! You guessed the word!")
+        disable_buttons()
+    elif chances <= 0:
+        status_label.config(text=f"You lost! The word was '{word}'.")
+        disable_buttons()
 
-            try:
-                guess = str(input('Enter a letter to guess: '))
-            except:
-                print('Enter only a letter!')
-                continue
+def update_guessed(letter):
+    for index, char in enumerate(word):
+        if char == letter:
+            guessed[index] = letter
 
-            # Validation of the guess
-            if not guess.isalpha():
-                print('Enter only a LETTER')
-                continue
-            elif len(guess) > 1:
-                print('Enter only a SINGLE letter')
-                continue
-            elif guess in letterGuessed:
-                print('You have already guessed that letter')
-                continue
+def update_display():
+    word_label.config(text=' '.join(guessed))
 
-            # If letter is guessed correctly
-            if guess in word:
-                # k stores the number of times the guessed letter occurs in the word
-                k = word.count(guess)
-                for _ in range(k):
-                    letterGuessed += guess  # The guessed letter is added as many times as it occurs
+def disable_buttons():
+    for btn in buttons:
+        btn.config(state='disabled')
 
-            # Print the word
-            for char in word:
-                if char in letterGuessed and (Counter(letterGuessed) != Counter(word)):
-                    print(char, end=' ')
-                    correct += 1
-                # If user has guessed all the letters
-                # Once the correct word is guessed fully,
-                elif (Counter(letterGuessed) == Counter(word)):
-                    # the game ends, even if chances remain
-                    print("The word is: ", end=' ')
-                    print(word)
-                    flag = 1
-                    print('Congratulations, You won!')
-                    break  # To break out of the for loop
-                    break  # To break out of the while loop
-                else:
-                    print('_', end=' ')
+# Create the main window
+root = tk.Tk()
+root.title("Hangman Game")
 
-        # If user has used all of his chances
-        if chances <= 0 and (Counter(letterGuessed) != Counter(word)):
-            print()
-            print('You lost! Try again..')
-            print('The word was {}'.format(word))
+# Create a label to show the word to guess
+word_label = tk.Label(root, text=' '.join(guessed), font=('Helvetica', 24))
+word_label.pack(pady=20)
 
-    except KeyboardInterrupt:
-        print()
-        print('Bye! Try again.')
-        exit()
+# Create a label to show the game status
+status_label = tk.Label(root, text=f"You have {chances} chances. Start guessing!", font=('Helvetica', 14))
+status_label.pack(pady=10)
+
+# Create a frame to hold the buttons
+frame = tk.Frame(root)
+frame.pack()
+
+# Create buttons for each letter
+buttons = []
+for ascii_code in range(97, 123):  # ASCII codes for a-z
+    letter = chr(ascii_code)
+    btn = tk.Button(frame, text=letter.upper(), command=lambda l=letter: guess(l), width=4, height=2)
+    btn.pack(side='left', padx=2, pady=2)
+    buttons.append(btn)
+
+# Run the application
+root.mainloop()
