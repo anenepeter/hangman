@@ -48,29 +48,3 @@ This plan outlines the steps to add the requested features to the Hangman game: 
 
 *   Ensure the timer integrates smoothly with the game logic, especially with the guess function and game state updates.
 *   Test all features to ensure they work as expected and handle different game scenarios correctly.
-
-## Mermaid Diagram of the Plan:
-
-```mermaid
-graph LR
-    A[Start Game / Reset Button Clicked] --> B(Choose New Word);
-    B --> C(Reset Game State: guessed, chances, used_letters);
-    C --> D{Start Timer (20s)};
-    D --> E[Display Timer Label];
-    E --> F[Display Word Label];
-    F --> G[Enable Letter Buttons];
-    G --> H{Player Guesses Letter (Button or Keyboard)};
-    H --> I{Check Letter in Word};
-    I -- Yes --> J[Update Guessed Word];
-    I -- No --> K{Decrement Chances / Timer Runs Out};
-    K --> L[Update Status Label];
-    L --> M[Update Word Label];
-    M --> N{Check Win/Lose Conditions};
-    N -- Win --> O[Display Win Message];
-    N -- Lose --> P[Display Lose Message];
-    O --> Q[Disable Buttons];
-    P --> Q;
-    Q --> R[Game Over];
-    R --> S[Reset Button / Exit Button];
-    S -- Reset --> A;
-    S -- Exit --> T[Close Window];
